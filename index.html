@@ -1,0 +1,187 @@
+
+import React, { useState, useEffect } from 'react';
+import { AlertCircle, CheckCircle2, XCircle, Clock, Award } from 'lucide-react';
+
+const questions = [
+  {
+    question: "Khi làm việc với axit mạnh, bạn nên sử dụng gì để bảo vệ mắt?",
+    options: ["Kính râm", "Kính bảo hộ", "Không cần gì cả", "Kính áp tròng"],
+    correctAnswer: 1,
+    explanation: "Kính bảo hộ là thiết bị bảo vệ cá nhân quan trọng khi làm việc với axit mạnh để bảo vệ mắt khỏi bị bắn tóe hoặc hơi axit."
+  },
+  {
+    question: "Biểu tượng nào thường được sử dụng để chỉ chất độc?",
+    options: ["Ngọn lửa", "Đầu lâu xương chéo", "Dấu chấm than", "Chữ X"],
+    correctAnswer: 1,
+    explanation: "Biểu tượng đầu lâu xương chéo là ký hiệu quốc tế cho chất độc, cảnh báo về nguy hiểm khi tiếp xúc hoặc sử dụng."
+  },
+  {
+    question: "Khi xảy ra hỏa hoạn trong phòng thí nghiệm, điều đầu tiên bạn nên làm là gì?",
+    options: ["Chạy ra ngoài", "Gọi cứu hỏa", "Báo động cho mọi người", "Cố gắng dập lửa"],
+    correctAnswer: 2,
+    explanation: "Báo động cho mọi người là bước đầu tiên quan trọng để đảm bảo an toàn cho tất cả mọi người trong phòng thí nghiệm và kích hoạt quy trình ứng phó khẩn cấp."
+  },
+  {
+    question: "Đâu KHÔNG phải là một quy tắc an toàn trong phòng thí nghiệm?",
+    options: ["Luôn mặc áo choàng", "Ăn uống trong phòng thí nghiệm", "Rửa tay sau khi làm việc", "Đọc kỹ hướng dẫn trước khi thực hiện"],
+    correctAnswer: 1,
+    explanation: "Ăn uống trong phòng thí nghiệm là nguy hiểm và bị cấm vì có thể dẫn đến nhiễm bẩn hoặc vô tình nuốt phải hóa chất độc hại."
+  },
+  {
+    question: "Khi làm việc với dung môi dễ bay hơi, bạn nên làm gì?",
+    options: ["Làm việc trong tủ hút", "Mở cửa sổ", "Đeo khẩu trang thông thường", "Không cần làm gì đặc biệt"],
+    correctAnswer: 0,
+    explanation: "Tủ hút được thiết kế đặc biệt để loại bỏ hơi độc hại và bảo vệ người làm việc khỏi hít phải các dung môi dễ bay hơi."
+  }
+];
+
+const LabSafetyGame = () => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [gameStarted, setGameStarted] = useState(false);
+
+  useEffect(() => {
+    if (gameStarted && timeLeft > 0 && !showResult) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0 && !showResult) {
+      setShowResult(true);
+    }
+  }, [timeLeft, gameStarted, showResult]);
+
+  const handleAnswer = (selectedIndex) => {
+    setSelectedAnswer(selectedIndex);
+    if (selectedIndex === questions[currentQuestion].correctAnswer) {
+      setScore(score + 1);
+    }
+    setShowExplanation(true);
+  };
+
+  const nextQuestion = () => {
+    setSelectedAnswer(null);
+    setShowExplanation(false);
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setTimeLeft(30);
+    } else {
+      setShowResult(true);
+    }
+  };
+
+  const resetGame = () => {
+    setCurrentQuestion(0);
+    setScore(0);
+    setShowResult(false);
+    setSelectedAnswer(null);
+    setShowExplanation(false);
+    setTimeLeft(30);
+    setGameStarted(false);
+  };
+
+  const startGame = () => {
+    setGameStarted(true);
+  };
+
+  if (!gameStarted) {
+    return (
+      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-xl">
+        <h2 className="text-2xl font-bold mb-4">An toàn trong phòng thí nghiệm</h2>
+        <p className="mb-4">Sẵn sàng kiểm tra kiến thức của bạn về an toàn trong phòng thí nghiệm?</p>
+        <button
+          onClick={startGame}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Bắt đầu trò chơi
+        </button>
+      </div>
+    );
+  }
+
+  if (showResult) {
+    return (
+      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-xl">
+        <h2 className="text-2xl font-bold mb-4">Kết quả</h2>
+        <p className="text-lg mb-4">Bạn đã trả lời đúng {score} / {questions.length} câu hỏi</p>
+        <div className="flex items-center justify-center mb-4">
+          <Award className="text-yellow-500 mr-2" size={24} />
+          <span className="text-xl font-bold">
+            {score === questions.length ? "Xuất sắc!" : score >= questions.length / 2 ? "Tốt!" : "Cần cải thiện!"}
+          </span>
+        </div>
+        <button
+          onClick={resetGame}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Chơi lại
+        </button>
+      </div>
+    );
+  }
+
+  const question = questions[currentQuestion];
+
+  return (
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-xl">
+      <h2 className="text-2xl font-bold mb-4">An toàn trong phòng thí nghiệm</h2>
+      <div className="flex justify-between items-center mb-4">
+        <p>Câu hỏi {currentQuestion + 1} / {questions.length}</p>
+        <div className="flex items-center">
+          <Clock className="mr-2 text-blue-500" />
+          <span className={`font-bold ${timeLeft <= 10 ? 'text-red-500' : 'text-blue-500'}`}>{timeLeft}s</span>
+        </div>
+      </div>
+      <p className="text-lg mb-4">{question.question}</p>
+      <div className="space-y-2">
+        {question.options.map((option, index) => (
+          <button
+            key={index}
+            onClick={() => handleAnswer(index)}
+            className={`w-full text-left p-2 rounded ${
+              selectedAnswer === null
+                ? 'bg-gray-200 hover:bg-gray-300'
+                : selectedAnswer === index
+                ? index === question.correctAnswer
+                  ? 'bg-green-200'
+                  : 'bg-red-200'
+                : index === question.correctAnswer
+                ? 'bg-green-200'
+                : 'bg-gray-200'
+            }`}
+            disabled={selectedAnswer !== null}
+          >
+            {option}
+            {selectedAnswer !== null && index === question.correctAnswer && (
+              <CheckCircle2 className="inline ml-2 text-green-500" />
+            )}
+            {selectedAnswer === index && index !== question.correctAnswer && (
+              <XCircle className="inline ml-2 text-red-500" />
+            )}
+          </button>
+        ))}
+      </div>
+      {showExplanation && (
+        <div className="mt-4 p-3 bg-blue-100 rounded">
+          <p className="text-sm"><strong>Giải thích:</strong> {question.explanation}</p>
+        </div>
+      )}
+      {selectedAnswer !== null && (
+        <button
+          onClick={nextQuestion}
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          {currentQuestion < questions.length - 1 ? "Câu hỏi tiếp theo" : "Xem kết quả"}
+        </button>
+      )}
+      <div className="mt-4">
+        <AlertCircle className="inline mr-2 text-yellow-500" />
+        <span className="text-sm text-gray-600">Hãy suy nghĩ kỹ trước khi chọn đáp án!</span>
+      </div>
+    </div>
+  );
+};
+
+export default LabSafetyGame;
